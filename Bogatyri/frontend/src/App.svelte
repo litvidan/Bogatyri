@@ -37,14 +37,14 @@
 	.app {
 		padding: 24px;
 		font-family: "Nunito", sans-serif;
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		background: #667eea;
 		height: 100vh;
 		overflow-y: hidden;
 	}
 
 	header {
 		margin-bottom: 24px;
-		margin-top: 50px;
+		margin-top: 24px;
 		padding: 20px;
 		border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 		background: rgba(255, 255, 255, 0.95);
