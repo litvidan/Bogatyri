@@ -93,6 +93,7 @@ async def change_frequensy(request: FrequencyRequest):
 async def start_route():
     try:
         #await start_route()
+        print(f"Starting success!")
         return {"status": "success", "is_start": True}
     except Exception as exception:
         print(f"Starting error: {exception}")
@@ -102,6 +103,7 @@ async def start_route():
 async def stop_route():
     try:
         #await stop_route()
+        print(f"Stopping success!")
         return {"status": "success", "is_stop": True}
     except Exception as exception:
         print(f"Stopping error: {exception}")
