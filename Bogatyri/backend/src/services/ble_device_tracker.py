@@ -65,7 +65,7 @@ class BLEDeviceTracker:
         now = time.time()
         for mac, dev in self.devices.items():
             if(dev['name'] != 'Unknown'):
-                print(f"{dev['name']} RSSI: {-dev['rssi']}")
+                print(f"\"{dev['name']}\" {-dev['rssi']}")
         print("")
 
     def run(self):
