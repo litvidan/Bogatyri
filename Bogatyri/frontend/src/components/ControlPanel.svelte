@@ -6,6 +6,70 @@
     let beaconFile;
     export let url = 'ws://localhost:8000/ws/wanderer';
 
+    async function startRouteOnServer() {
+        try {
+            const response = await fetch('http://localhost:8000/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error status: ${response.status}`);
+            }
+
+            await response.json();
+            console.log("Starting success!")
+            
+        } catch (error) {
+            console.error('Error starting route:', error);
+        }
+    }
+
+    async function stopRouteOnServer() {
+        try {
+            const response = await fetch('http://localhost:8000/stop', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error status: ${response.status}`);
+            }
+
+            await response.json();
+            console.log("Stopping success!")
+            
+        } catch (error) {
+            console.error('Error stopping route:', error);
+        }
+    }
+
+    async function updateFrequencyOnServer(newFreq) {
+        try {
+            const response = await fetch('http://localhost:8000/frequency', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ freq: newFreq })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error status: ${response.status}`);
+            }
+
+            await response.json();
+            console.log("Changing success!")
+            
+        } catch (error) {
+            console.error('Error updating frequency:', error);
+        }
+    }
+
     function loadBeacons(event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -37,23 +101,34 @@
         return beaconsData;
     }
 
-    function startRoute() {
-        systemStatus.update(status => ({
-            ...status,
-            isRecording: true,
-            frequency: frequency
-        }));
-        websocketService.flag = false;
-        websocketService.connect(url);
+    async function startRoute() {
+        try {
+            await updateFrequencyOnServer(frequency);
+            await startRouteOnServer();
+            websocketService.flag = false;
+            websocketService.connect(url);
+            systemStatus.update(status => ({
+                ...status,
+                isRecording: true,
+                frequency: frequency
+            }));
+        } catch (error) {
+            console.error('Error with starting route');
+        }
     }
 
-    function stopRoute() {
-        systemStatus.update(status => ({
-            ...status,
-            isRecording: false
-        }));
-        websocketService.flag = true;
-        websocketService.disconnect(url);
+    async function stopRoute() {
+        try {
+            await stopRouteOnServer();
+            websocketService.flag = true;
+            websocketService.disconnect(url);
+            systemStatus.update(status => ({
+                ...status,
+                isRecording: false
+            }));
+        } catch (error) {
+            console.error('Error with starting route');
+        }
     }
 
     function exportPath() {
@@ -111,7 +186,7 @@
         <h3>Маршрут</h3>
         <label>
             Частота обновления (Гц):
-            <input type="number" bind:value={frequency} min="0.1" max="10" step="0.1" />
+            <input type="number" bind:value={frequency} min="0.1" max="10" step="0.1" disabled={$systemStatus.isRecording}/>
         </label>
 
         <div class="button-group">

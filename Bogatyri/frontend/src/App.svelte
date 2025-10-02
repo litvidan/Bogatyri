@@ -44,7 +44,7 @@
 
 	header {
 		margin-bottom: 24px;
-		margin-top: 24px;
+		margin-top: 44px;
 		padding: 20px;
 		border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 		background: rgba(255, 255, 255, 0.95);
