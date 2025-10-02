@@ -4,9 +4,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import asyncio
 import json
-import random
-import time
-import paho.mqtt.client as mqtt
+
+from RSSISubscriber import MqttSensorSubscriber
+from domain.sensor import Sensor
+from domain.freq import FrequencyRequest
+
 
 app = FastAPI(title="Wanderer API")
 
@@ -18,9 +20,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class FrequencyRequest(BaseModel):
-    freq: int
-
 class ConnectionManager:
     def __init__(self):
         self.active_connections = []
@@ -30,7 +29,8 @@ class ConnectionManager:
         self.active_connections.append(websocket)
 
     def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
+        if websocket in self.active_connections:
+            self.active_connections.remove(websocket)
 
     async def send_personal_message(self, message: str, websocket: WebSocket):
         await websocket.send_text(message)
@@ -45,64 +45,24 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
-
-class WandererSimulator:
-    def __init__(self):
-        self.coords = {}
-        self.generate_coords()
-
-    def generate_coords(self):
-        self.coords = {"x": round(random.uniform(1, 9), 2), "y": round(random.uniform(1, 6), 2)}
-
-    def update_coords(self):
-        self.coords["x"] = round(max(0.5, min(9.5, self.coords["x"] + random.uniform(-3.3, 3.3))), 2)
-        self.coords["y"] = round(max(0.5, min(6.5, self.coords["y"] + random.uniform(-3.3, 3.3))), 2)
-        return self.coords
-
-class Message(BaseModel):
-    data: dict[str : int]
-
-class WandererMQTTSubscriber:
-    def __init__(self):
-        self.broker = "localhost"
-        self.port = 1883
-        self.topic = "data/devices"
-        self.client = mqtt.Client()
-        self.client.on_message=self.on_message
-        self.client.connect(self.broker, self.port, 60)
-
-        self.devices_data = {}
-
-    def on_message(self, client, userdata, msg):
-
-        msg = Message(**msg.payload().decode())
-        self.devices_data = msg.data
+# Создаём подписчика MQTT
+mqtt_subscriber = MqttSensorSubscriber(
+    broker="localhost",
+    port=1883,
+    topic="sensors/data"
+)
 
 
-    def on_connect(client, userdata, flags, rc):
-        print("Подключено к брокеру, код возврата:", rc)
-        # client.subscribe(self.topic)
-
-    def update_coords(self):
-        self.coords["x"] = round(max(0.5, min(9.5, self.coords["x"] + random.uniform(-3.3, 3.3))), 2)
-        self.coords["y"] = round(max(0.5, min(6.5, self.coords["y"] + random.uniform(-3.3, 3.3))), 2)
-        return self.coords
-     
-
-
-wanderer_simulator = WandererSimulator()
-
-
+# ---- WebSocket ----
 @app.websocket("/ws/wanderer")
 async def websocket_wanderer(websocket: WebSocket):
     await manager.connect(websocket)
     try:
-        await websocket.send_text(json.dumps(wanderer_simulator.coords))
         print("Client connected")
 
         while True:
-            coords_data = wanderer_simulator.update_coords()
-            await websocket.send_text(json.dumps(coords_data))
+            sensors_data = mqtt_subscriber.get_sensors()
+            await websocket.send_text(json.dumps(sensors_data, ensure_ascii=False))
             await asyncio.sleep(2)
 
     except WebSocketDisconnect:
@@ -112,34 +72,33 @@ async def websocket_wanderer(websocket: WebSocket):
         print(f"WebSocket error: {exception}")
         manager.disconnect(websocket)
 
+
+# ---- REST endpoints ----
 @app.post("/frequency")
 async def change_frequensy(request: FrequencyRequest):
     try:
-        #await change_monitoring_frequency(freq=request.freq)
-        return {"status": "success", "message": f"Frequency changed to {request.new_freq}"}
+        return {"status": "success", "message": f"Frequency changed to {request.freq}"}
     except Exception as exception:
-        print(f"Modification error: {exception}")
         return {"status": "error", "message": str(exception)}
+
 
 @app.post("/start")
 async def start_route():
     try:
-        #await start_route()
-        print(f"Starting success!")
+        print("Starting success!")
         return {"status": "success", "is_start": True}
     except Exception as exception:
-        print(f"Starting error: {exception}")
         return {"status": "error", "is_start": False}
+
 
 @app.post("/stop")
 async def stop_route():
     try:
-        #await stop_route()
-        print(f"Stopping success!")
+        print("Stopping success!")
         return {"status": "success", "is_stop": True}
     except Exception as exception:
-        print(f"Stopping error: {exception}")
         return {"status": "error", "is_stop": False}
+
 
 if __name__ == "__main__":
     uvicorn.run(
@@ -147,5 +106,4 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=8000,
         reload=True,
-        ws="auto"
     )

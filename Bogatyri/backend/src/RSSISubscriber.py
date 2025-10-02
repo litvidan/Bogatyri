@@ -1,52 +1,43 @@
 import json
+import threading
 import paho.mqtt.client as mqtt
-from pydantic import BaseModel
-
-
-class Sensor(BaseModel):
-    name: str
-    rssi: int
-    is_running: bool = True
+from domain.sensor import Sensor
 
 
 class MqttSensorSubscriber:
-    def __init__(self, broker: str = "localhost", port: int = 1883, topic: str = "sensors/data"):
+    def __init__(self, broker="localhost", port=1883, topic="sensors/data"):
         self.broker = broker
         self.port = port
         self.topic = topic
         self.client = mqtt.Client()
-        self.sensors: dict[str, Sensor] = {}  # храним по имени
-
-        # назначаем колбэки
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
 
+        self.sensors: dict[str, Sensor] = {}
+
+        # запуск в отдельном потоке
+        self.thread = threading.Thread(target=self._run, daemon=True)
+        self.thread.start()
+
+    def _run(self):
+        """Внутренний метод для подключения и запуска цикла MQTT"""
+        self.client.connect(self.broker, self.port, 60)
+        self.client.loop_forever()
+
     def on_connect(self, client, userdata, flags, rc):
-        if rc == 0:
-            print(f"[MQTT] Connected to {self.broker}:{self.port}, subscribed to '{self.topic}'")
-            client.subscribe(self.topic)
-        else:
-            print(f"[MQTT] Connection failed with code {rc}")
+        print(f"[MQTT] Connected with result code {rc}")
+        client.subscribe(self.topic)
 
     def on_message(self, client, userdata, msg):
         try:
             payload = msg.payload.decode("utf-8")
-            data = json.loads(payload)        # ожидаем JSON от датчика
-            sensor = Sensor(**data)           # валидация через pydantic
-            self.sensors[sensor.name] = sensor  # обновление/добавление сенсора
-            self.process_sensor(sensor)
+            data = json.loads(payload)
+            sensor = Sensor(**data)
+            self.sensors[sensor.name] = sensor
+            print(f"[DATA] Received {sensor}")
         except Exception as e:
-            print(f"[MQTT] Error processing message: {e}")
+            print(f"[MQTT] Error parsing message: {e}")
 
-    def process_sensor(self, sensor: Sensor):
-        """Здесь можно обрабатывать новые данные от сенсора"""
-        print(f"[DATA] {sensor.name}: RSSI={sensor.rssi}, Running={sensor.is_running}")
-
-    def get_sensors(self) -> list[Sensor]:
-        """Вернуть список всех сенсоров"""
-        return list(self.sensors.values())
-
-    def run(self):
-        print("[MQTT] Starting subscriber...")
-        self.client.connect(self.broker, self.port, 60)
-        self.client.loop_forever()
+    def get_sensors(self):
+        """Вернуть список сенсоров"""
+        return [s.model_dump() for s in self.sensors.values()]
