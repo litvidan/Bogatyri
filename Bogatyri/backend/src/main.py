@@ -83,11 +83,29 @@ async def websocket_wanderer(websocket: WebSocket):
 @app.post("/frequency")
 async def change_frequensy(request: FrequencyRequest):
     try:
-        await change_monitoring_frequency(freq=request.freq)
+        #await change_monitoring_frequency(freq=request.freq)
         return {"status": "success", "message": f"Frequency changed to {request.new_freq}"}
     except Exception as exception:
         print(f"Modification error: {exception}")
         return {"status": "error", "message": str(exception)}
+
+@app.post("/start")
+async def start_route():
+    try:
+        #await start_route()
+        return {"status": "success", "is_start": True}
+    except Exception as exception:
+        print(f"Starting error: {exception}")
+        return {"status": "error", "is_start": False}
+
+@app.post("/stop")
+async def stop_route():
+    try:
+        #await stop_route()
+        return {"status": "success", "is_stop": True}
+    except Exception as exception:
+        print(f"Stopping error: {exception}")
+        return {"status": "error", "is_stop": False}
 
 if __name__ == "__main__":
     uvicorn.run(
