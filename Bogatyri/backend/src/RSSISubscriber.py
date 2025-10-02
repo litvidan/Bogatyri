@@ -41,3 +41,9 @@ class MqttSensorSubscriber:
     def get_sensors(self):
         """Вернуть список сенсоров"""
         return [s.model_dump() for s in self.sensors.values()]
+
+
+    def publish(self, topic: str, message: dict):
+        """Отправка сообщения в топик"""
+        payload = json.dumps(message)
+        self.client.publish(topic, payload)

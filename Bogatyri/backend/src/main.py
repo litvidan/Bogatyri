@@ -14,6 +14,8 @@ import paho.mqtt.client as mqtt
 from src.models.schemas import FrequencyRequest, BeaconRequest, Message
 from src.services.monitor_state import MonitorState
 
+MQTT_TOPIC = "sensors/frequency"
+
 app = FastAPI(title="Wanderer API")
 
 app.add_middleware(
@@ -83,6 +85,10 @@ async def websocket_wanderer(websocket: WebSocket):
 @app.post("/frequency")
 async def change_frequensy(request: FrequencyRequest):
     try:
+        # Формируем payload
+        payload = {"frequency": request.freq}
+        mqtt_subscriber.publish(MQTT_TOPIC, json.dumps(payload))
+
         return {"status": "success", "message": f"Frequency changed to {request.freq}"}
     except Exception as exception:
         return {"status": "error", "message": str(exception)}
