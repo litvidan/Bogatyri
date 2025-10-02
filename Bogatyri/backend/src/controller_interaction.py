@@ -84,6 +84,9 @@ class BLEDeviceTracker:
         '''
         pass
 
+    def listener_broker(self):
+        pass
+
     def run(self):
         while True:
             self.start_scan()
