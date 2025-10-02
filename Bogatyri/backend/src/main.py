@@ -13,6 +13,7 @@ import paho.mqtt.client as mqtt
 
 from src.models.schemas import FrequencyRequest, BeaconRequest, Message
 from src.services.monitor_state import MonitorState
+from src.services.websocket_connection_manager import ConnectionManager
 
 app = FastAPI(title="Wanderer API")
 
@@ -23,29 +24,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-class ConnectionManager:
-    def __init__(self):
-        self.active_connections = []
-
-    async def connect(self, websocket: WebSocket):
-        await websocket.accept()
-        self.active_connections.append(websocket)
-
-    def disconnect(self, websocket: WebSocket):
-        if websocket in self.active_connections:
-            self.active_connections.remove(websocket)
-
-    async def send_personal_message(self, message: str, websocket: WebSocket):
-        await websocket.send_text(message)
-
-    async def broadcast(self, message: str):
-        for connection in self.active_connections:
-            try:
-                await connection.send_text(message)
-            except:
-                self.disconnect(connection)
 
 monitor = MonitorState()
 manager = ConnectionManager()
@@ -80,18 +58,10 @@ async def websocket_wanderer(websocket: WebSocket):
 
 
 # ---- REST endpoints ----
-@app.post("/frequency")
-async def change_frequensy(request: FrequencyRequest):
-    try:
-        return {"status": "success", "message": f"Frequency changed to {request.freq}"}
-    except Exception as exception:
-        return {"status": "error", "message": str(exception)}
-
 
 @app.post("/start")
 async def start_route(request: FrequencyRequest):
     try:
-        print("Starting success!")
         monitor.start_monitoring(request.freq)
         print(f"Starting success!")
         return {"status": "success", "is_start": True}
@@ -112,7 +82,6 @@ async def add_beacons(request: BeaconRequest):
 @app.post("/stop")
 async def stop_route():
     try:
-        print("Stopping success!")
         monitor.stop_monitoring()
         print(f"Stopping success!")
         return {"status": "success", "is_stop": True}

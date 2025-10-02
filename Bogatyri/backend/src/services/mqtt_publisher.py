@@ -1,9 +1,10 @@
-from controller_listener import run_mpremote
 import paho.mqtt.client as mqtt
 import json
 import threading
 
-broker = "mqtt.eclipse.org"
+from src.services.controller_listener import run_mpremote
+
+broker = "localhost"
 port = 1883
 topic = "beacons"
 

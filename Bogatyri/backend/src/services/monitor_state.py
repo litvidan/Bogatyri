@@ -1,6 +1,6 @@
 import threading
-from mqtt_publisher import mqtt_publish_lines
 from src.models.schemas import BeaconConfig
+from src.services.mqtt_publisher import mqtt_publish_lines
 
 
 class MonitorState:
