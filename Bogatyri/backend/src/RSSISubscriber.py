@@ -1,7 +1,8 @@
 import json
 import threading
 import paho.mqtt.client as mqtt
-from domain.sensor import Sensor
+
+from src.domain.sensor import Sensor
 
 
 class MqttSensorSubscriber:
