@@ -8,6 +8,7 @@ import paho.mqtt.client as mqtt
 
 from src.models.schemas import FrequencyRequest, BeaconRequest, Message
 from src.services.monitor_state import MonitorState
+from src.services.websocket_connection_manager import ConnectionManager
 
 app = FastAPI(title="Wanderer API")
 
@@ -18,29 +19,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-
-class ConnectionManager:
-    def __init__(self):
-        self.active_connections = []
-
-    async def connect(self, websocket: WebSocket):
-        await websocket.accept()
-        self.active_connections.append(websocket)
-
-    def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
-
-    async def send_personal_message(self, message: str, websocket: WebSocket):
-        await websocket.send_text(message)
-
-    async def broadcast(self, message: str):
-        for connection in self.active_connections:
-            try:
-                await connection.send_text(message)
-            except:
-                self.disconnect(connection)
 
 monitor = MonitorState()
 manager = ConnectionManager()
