@@ -27,7 +27,7 @@ def cords_estimator_from_rssi(
         beacons_with_rssi: list[tuple[float, float, int]],
         rssi0: int = 40,
         n: float = 2.0
-) -> tuple[float, float]:
+) -> dict[float, float]:
     """
     Оценивает координаты на основе RSSI маяков
 

@@ -41,8 +41,13 @@ async def websocket_wanderer(websocket: WebSocket):
         while True:
             sensors_data = mqtt_subscriber.get_sensors()
             beacons = monitor.get_beacons()
-            cords_response = cords_estimator_from_rssi([(beacons.x, beacons.y, s.rssi) for s in sensors_data])
-            await websocket.send_text(json.dumps(cords_response, ensure_ascii=False))
+            print(beacons)
+            cords_response = cords_estimator_from_rssi([(beacons[s.name].x, beacons[s.name].y, s.rssi) for s in sensors_data])
+            response_data = {
+                "x": float(cords_response[0]),
+                "y": float(cords_response[1])
+            }
+            await websocket.send_text(json.dumps(response_data, ensure_ascii=False))
             await asyncio.sleep(1)
 
     except WebSocketDisconnect:
