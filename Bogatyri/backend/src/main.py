@@ -24,7 +24,7 @@ manager = ConnectionManager()
 
 # Создаём подписчика MQTT
 mqtt_subscriber = MqttSensorSubscriber(
-    broker="localhost",
+    broker="mqtt",
     port=1883,
     topic="sensors/data"
 )
