@@ -6,8 +6,11 @@
     let beaconFile;
     export let url = 'ws://localhost:8000/ws/wanderer';
 
-    async function startRouteOnServer() {
+    async function startRouteOnServer(newFreq) {
         try {
+            if (newFreq > 10 || newFreq < 0.1) {
+                throw new Error('Incorrect frequency');
+            }
             const response = await fetch('http://localhost:8000/start', {
                 method: 'POST',
                 headers: {
@@ -48,28 +51,6 @@
         }
     }
 
-    async function updateFrequencyOnServer(newFreq) {
-        try {
-            const response = await fetch('http://localhost:8000/frequency', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ freq: newFreq })
-            });
-
-            if (!response.ok) {
-                throw new Error(`Error status: ${response.status}`);
-            }
-
-            await response.json();
-            console.log("Changing success!")
-            
-        } catch (error) {
-            console.error('Error updating frequency:', error);
-        }
-    }
-
     function loadBeacons(event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -103,8 +84,7 @@
 
     async function startRoute() {
         try {
-            await updateFrequencyOnServer(frequency);
-            await startRouteOnServer();
+            await startRouteOnServer(frequency);
             websocketService.flag = false;
             websocketService.connect(url);
             systemStatus.update(status => ({
