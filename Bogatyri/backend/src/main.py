@@ -3,6 +3,11 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio
 import json
+
+from RSSISubscriber import MqttSensorSubscriber
+from domain.sensor import Sensor
+from domain.freq import FrequencyRequest
+
 import random
 import paho.mqtt.client as mqtt
 
@@ -23,6 +28,15 @@ app.add_middleware(
 monitor = MonitorState()
 manager = ConnectionManager()
 
+# Создаём подписчика MQTT
+mqtt_subscriber = MqttSensorSubscriber(
+    broker="localhost",
+    port=1883,
+    topic="sensors/data"
+)
+
+
+# ---- WebSocket ----
 
 class WandererSimulator:
     def __init__(self):
@@ -73,12 +87,11 @@ wanderer_simulator = WandererSimulator()
 async def websocket_wanderer(websocket: WebSocket):
     await manager.connect(websocket)
     try:
-        await websocket.send_text(json.dumps(wanderer_simulator.coords))
         print("Client connected")
 
         while True:
-            coords_data = wanderer_simulator.update_coords()
-            await websocket.send_text(json.dumps(coords_data))
+            sensors_data = mqtt_subscriber.get_sensors()
+            await websocket.send_text(json.dumps(sensors_data, ensure_ascii=False))
             await asyncio.sleep(2)
 
     except WebSocketDisconnect:
@@ -88,6 +101,9 @@ async def websocket_wanderer(websocket: WebSocket):
         print(f"WebSocket error: {exception}")
         manager.disconnect(websocket)
 
+
+# ---- REST endpoints ----
+
 @app.post("/start")
 async def start_route(request: FrequencyRequest):
     try:
@@ -95,8 +111,8 @@ async def start_route(request: FrequencyRequest):
         print(f"Starting success!")
         return {"status": "success", "is_start": True}
     except Exception as exception:
-        print(f"Starting error: {exception}")
         return {"status": "error", "is_start": False}
+
 
 @app.post("/beacons")
 async def add_beacons(request: BeaconRequest):
@@ -115,8 +131,8 @@ async def stop_route():
         print(f"Stopping success!")
         return {"status": "success", "is_stop": True}
     except Exception as exception:
-        print(f"Stopping error: {exception}")
         return {"status": "error", "is_stop": False}
+
 
 if __name__ == "__main__":
     uvicorn.run(
@@ -124,5 +140,4 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=8000,
         reload=True,
-        ws="auto"
     )
