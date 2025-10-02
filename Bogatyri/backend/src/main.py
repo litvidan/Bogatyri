@@ -7,7 +7,7 @@ import json
 import random
 import paho.mqtt.client as mqtt
 
-from src.models.schemas import FrequencyRequest
+from src.models.schemas import FrequencyRequest, BeaconRequest, Message
 
 app = FastAPI(title="Wanderer API")
 
@@ -59,8 +59,6 @@ class WandererSimulator:
         self.coords["y"] = round(max(0.5, min(6.5, self.coords["y"] + random.uniform(-3.3, 3.3))), 2)
         return self.coords
 
-class Message(BaseModel):
-    data: dict[str : int]
 
 class WandererMQTTSubscriber:
     def __init__(self):
@@ -121,6 +119,16 @@ async def start_route(request: FrequencyRequest):
     except Exception as exception:
         print(f"Starting error: {exception}")
         return {"status": "error", "is_start": False}
+
+@app.post("/beacons")
+async def add_beacons(request: BeaconRequest):
+    try:
+        #await add_beacons(request.beacons)
+        print(f"Starting success!")
+        return {"status": "success"}
+    except Exception as exception:
+        print(f"Starting error: {exception}")
+        return {"status": "error"}
 
 @app.post("/stop")
 async def stop_route():

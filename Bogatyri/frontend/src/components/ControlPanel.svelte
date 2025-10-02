@@ -6,6 +6,30 @@
     let beaconFile;
     export let url = 'ws://localhost:8000/ws/wanderer';
 
+    async function sendBeaconsOnServer() {
+        try {
+            const response = await fetch('http://localhost:8000/beacons', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    beacons: $beacons
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error status: ${response.status}`);
+            }
+
+            await response.json();
+            console.log("Beacons sent successfully!")
+            
+        } catch (error) {
+            console.error('Error sending beacons:', error);
+        }
+    }
+
     async function startRouteOnServer(newFreq) {
         try {
             if (newFreq > 10 || newFreq < 0.1) {
@@ -15,7 +39,10 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                }
+                },
+                body: JSON.stringify({
+                    freq: newFreq
+                })
             });
 
             if (!response.ok) {
@@ -84,6 +111,7 @@
 
     async function startRoute() {
         try {
+            await sendBeaconsOnServer();
             await startRouteOnServer(frequency);
             websocketService.flag = false;
             websocketService.connect(url);
@@ -171,11 +199,11 @@
 
         <div class="button-group">
             {#if !$systemStatus.isRecording}
-                <button on:click={startRoute} class="start-btn">
+                <button on:click={startRoute} class="start-btn" disabled={!$beacons || $beacons.length === 0}>
                     ▶ Начать маршрут
                 </button>
             {:else}
-                <button on:click={stopRoute} class="stop-btn">
+                <button on:click={stopRoute} class="stop-btn" disabled={!$beacons || $beacons.length === 0}>
                     ⏹ Остановить
                 </button>
             {/if}

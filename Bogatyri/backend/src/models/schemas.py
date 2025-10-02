@@ -8,8 +8,11 @@ class BeaconConfig(BaseModel):
     y: float
     name: str
 
+class BeaconRequest(BaseModel):
+    beacons: list[BeaconConfig]
+
 class Message(BaseModel):
-    data: dict[str : int]
+    data: dict
 
 class PositionResponse(BaseModel):
     x: float
