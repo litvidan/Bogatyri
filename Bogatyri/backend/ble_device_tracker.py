@@ -7,18 +7,20 @@ _IRQ_SCAN_RESULT = const(5)
 _IRQ_SCAN_DONE = const(6)
 
 class BLEDeviceTracker:
-    def __init__(self, scan_duration=10000, update_interval=15):
+    def __init__(self, scan_duration):
+        print("Initializing BLE")
         self.bt = bluetooth.BLE()
         self.bt.active(True)
         self.bt.irq(self.bt_irq)
+        print("BLE initialized")
 
         self.scan_duration = scan_duration  # время сканирования в мс
-        self.update_interval = update_interval  # время между циклами обновления в секундах
 
-        # Словарь для хранения устройств: ключ - MAC, значения - dict с именем, rssi, last_seen
+        # Словарь для хранения устройств: ключ - MAC, значения - dict с именем, rssi
         self.devices = {}
 
         self.scanning = False
+        print("Finished BLEDeviceTracker constructor")
 
     def decode_name(self, adv_data):
         i = 0
@@ -55,35 +57,37 @@ class BLEDeviceTracker:
 	            # Добавляем новое устройство или обновляем существующее
 	            self.devices[mac] = {
 	                'name': name,
-	                'rssi': rssi,
-	                'last_seen': time.time()
+	                'rssi': rssi
 	            }
 	    elif event == _IRQ_SCAN_DONE:
 	        self.scanning = False
 	        print("Scan complete")
 
     def start_scan(self):
+    	print("Start scanning")
         self.devices.clear()
         self.scanning = True
-        self.bt.gap_scan(self.scan_duration, 30000, 30000, True)
+        self.bt.gap_scan(self.scan_duration, 0, 0, True)
+        print("Finished scanning")
 
     def print_devices(self):
         print("Tracked devices:")
         now = time.time()
         for mac, dev in self.devices.items():
-            age = now - dev['last_seen']
             if(dev['name'] != 'Unknown'):
-            	print(f"Name: {dev['name']}, MAC: {mac}, RSSI: {dev['rssi']}, last seen {age:.1f} sec ago")
+            	print(f"{dev['name']} RSSI: {-dev['rssi']}")
         print("-----")
 
     def run(self):
+    	print("Start BLEDeviceTracker running")
         while True:
             self.start_scan()
             while self.scanning:
                 time.sleep_ms(100)
             self.print_devices()
-            time.sleep(self.update_interval)
 
 
-tracker = BLEDeviceTracker(scan_duration=10000, update_interval=1)
+
+
+tracker = BLEDeviceTracker(scan_duration=1000)
 tracker.run()
