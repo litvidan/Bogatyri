@@ -5,8 +5,9 @@ from pydantic import BaseModel
 import asyncio
 import json
 import random
-import time
 import paho.mqtt.client as mqtt
+
+from src.models.schemas import FrequencyRequest
 
 app = FastAPI(title="Wanderer API")
 
@@ -18,8 +19,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class FrequencyRequest(BaseModel):
-    freq: int
+
 
 class ConnectionManager:
     def __init__(self):
@@ -112,19 +112,10 @@ async def websocket_wanderer(websocket: WebSocket):
         print(f"WebSocket error: {exception}")
         manager.disconnect(websocket)
 
-@app.post("/frequency")
-async def change_frequensy(request: FrequencyRequest):
-    try:
-        #await change_monitoring_frequency(freq=request.freq)
-        return {"status": "success", "message": f"Frequency changed to {request.new_freq}"}
-    except Exception as exception:
-        print(f"Modification error: {exception}")
-        return {"status": "error", "message": str(exception)}
-
 @app.post("/start")
-async def start_route():
+async def start_route(request: FrequencyRequest):
     try:
-        #await start_route()
+        #await start_route(request.freq)
         print(f"Starting success!")
         return {"status": "success", "is_start": True}
     except Exception as exception:
