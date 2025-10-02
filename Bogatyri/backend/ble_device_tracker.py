@@ -1,26 +1,24 @@
+import sys
 import time
 import bluetooth
 import ubinascii
+import machine
 from micropython import const
 
 _IRQ_SCAN_RESULT = const(5)
 _IRQ_SCAN_DONE = const(6)
 
+
 class BLEDeviceTracker:
     def __init__(self, scan_duration):
-        print("Initializing BLE")
         self.bt = bluetooth.BLE()
         self.bt.active(True)
         self.bt.irq(self.bt_irq)
-        print("BLE initialized")
 
-        self.scan_duration = scan_duration  # время сканирования в мс
-
-        # Словарь для хранения устройств: ключ - MAC, значения - dict с именем, rssi
+        self.scan_duration = scan_duration
         self.devices = {}
 
         self.scanning = False
-        print("Finished BLEDeviceTracker constructor")
 
     def decode_name(self, adv_data):
         i = 0
@@ -51,43 +49,45 @@ class BLEDeviceTracker:
 	        mac = ubinascii.hexlify(addr, ':').decode().upper()
 	        name = self.decode_name(adv_data)
 	        if name is None:
-	            # Игнорируем устройства без имени
 	            return
 	        else:
-	            # Добавляем новое устройство или обновляем существующее
 	            self.devices[mac] = {
 	                'name': name,
 	                'rssi': rssi
 	            }
 	    elif event == _IRQ_SCAN_DONE:
 	        self.scanning = False
-	        print("Scan complete")
 
     def start_scan(self):
-    	print("Start scanning")
         self.devices.clear()
         self.scanning = True
         self.bt.gap_scan(self.scan_duration, 0, 0, True)
-        print("Finished scanning")
 
     def print_devices(self):
-        print("Tracked devices:")
         now = time.time()
         for mac, dev in self.devices.items():
             if(dev['name'] != 'Unknown'):
             	print(f"{dev['name']} RSSI: {-dev['rssi']}")
-        print("-----")
+        print("")
 
     def run(self):
-    	print("Start BLEDeviceTracker running")
         while True:
             self.start_scan()
             while self.scanning:
                 time.sleep_ms(100)
             self.print_devices()
 
+def read_params():
+    try:
+        with open('params.txt', 'r') as f:
+            val = f.read().strip()
+            return int(val)
+    except Exception:
+        return 1000
 
+if __name__ == '__main__':
+    scan_duration = read_params()
 
+    tracker = BLEDeviceTracker(scan_duration=scan_duration)
+    tracker.run()
 
-tracker = BLEDeviceTracker(scan_duration=1000)
-tracker.run()
