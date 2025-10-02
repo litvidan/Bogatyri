@@ -3,9 +3,10 @@
 
     export let width = 800;
     export let height = 350;
-    export let scale = 50;
+    export let scale = 5;
 
     let canvas;
+
 
     $: drawMap($beacons, $currentPosition, $realTimePath);
 
@@ -39,21 +40,24 @@
         ctx.lineTo(width, height/2);
         ctx.stroke();
 
-        beaconsData.forEach(beacon => {
+        beaconsData.forEach((beacon, index) => {
             const x = width/2 + beacon.x * scale;
             const y = height/2 - beacon.y * scale;
 
-            // Круг маяка
             ctx.fillStyle = '#ff4444';
             ctx.beginPath();
             ctx.arc(x, y, 8, 0, 2 * Math.PI);
             ctx.fill();
 
-            // Текст
-            ctx.fillStyle = '#000';
-            ctx.font = '12px Arial';
+            ctx.strokeStyle = '#cc0000';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 12px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText(beacon.name, x, y - 15);
+            ctx.textBaseline = 'middle';
+            ctx.fillText(index + 1, x, y);
         });
 
         if (path.length > 1) {
@@ -90,7 +94,6 @@
         ctx.stroke();
     }
 </script>
-
 <div class="map">
     <canvas
         bind:this={canvas}

@@ -1,8 +1,10 @@
 <script>
     import { systemStatus, currentPosition, beacons, realTimePath } from '../stores.js';
+    import { websocketService } from '../connection.js';
 
     let frequency = 1;
     let beaconFile;
+    export let url = 'ws://localhost:8000/ws/wanderer';
 
     function loadBeacons(event) {
         const file = event.target.files[0];
@@ -41,9 +43,8 @@
             isRecording: true,
             frequency: frequency
         }));
-
-        // Симуляция движения
-        simulateMovement();
+        websocketService.flag = false;
+        websocketService.connect(url);
     }
 
     function stopRoute() {
@@ -51,23 +52,8 @@
             ...status,
             isRecording: false
         }));
-    }
-
-    function simulateMovement() {
-        if (!$systemStatus.isRecording) return;
-
-        const time = $realTimePath.length * 0.1;
-        const newPosition = {
-            x: Math.cos(time) * 2,
-            y: Math.sin(time) * 2
-        };
-
-        currentPosition.set(newPosition);
-        realTimePath.update(path => [...path, newPosition]);
-
-        if ($systemStatus.isRecording) {
-            setTimeout(simulateMovement, 1000 / $systemStatus.frequency);
-        }
+        websocketService.flag = true;
+        websocketService.disconnect(url);
     }
 
     function exportPath() {
