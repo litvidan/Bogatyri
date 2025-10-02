@@ -3,10 +3,11 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio
 import json
-from src.RSSISubscriber import MqttSensorSubscriber
+from src.services.RSSISubscriber import MqttSensorSubscriber
 from src.models.schemas import FrequencyRequest, BeaconRequest
 from src.services.monitor_state import MonitorState
 from src.services.websocket_connection_manager import ConnectionManager
+from src.utils.position_estimator import cords_estimator_from_rssi
 
 app = FastAPI(title="Wanderer API")
 
@@ -39,8 +40,10 @@ async def websocket_wanderer(websocket: WebSocket):
 
         while True:
             sensors_data = mqtt_subscriber.get_sensors()
-            await websocket.send_text(json.dumps(sensors_data, ensure_ascii=False))
-            await asyncio.sleep(2)
+            beacons = monitor.get_beacons()
+            cords_response = cords_estimator_from_rssi([(beacons.x, beacons.y, s.rssi) for s in sensors_data])
+            await websocket.send_text(json.dumps(cords_response, ensure_ascii=False))
+            await asyncio.sleep(1)
 
     except WebSocketDisconnect:
         manager.disconnect(websocket)

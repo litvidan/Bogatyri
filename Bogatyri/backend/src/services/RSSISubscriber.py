@@ -41,4 +41,4 @@ class MqttSensorSubscriber:
 
     def get_sensors(self):
         """Вернуть список сенсоров"""
-        return [s.model_dump() for s in self.sensors.values()]
+        return [s for s in self.sensors.values()]
