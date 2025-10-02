@@ -11,7 +11,7 @@ def trilateration_error(point, beacons, distances):
     return error
 
 
-def rssi_to_distance(rssi: int, rssi0: int =-50, n: float = 2.0):
+def rssi_to_distance(rssi: int, rssi0: int = 40, n: float = 2.0):
     """
     Преобразует RSSI в расстояние по логарифмической модели затухания сигнала
 
@@ -25,7 +25,7 @@ def rssi_to_distance(rssi: int, rssi0: int =-50, n: float = 2.0):
 
 def cords_estimator_from_rssi(
         beacons_with_rssi: list[tuple[float, float, int]],
-        rssi0: int = -50,
+        rssi0: int = 40,
         n: float = 2.0
 ) -> tuple[float, float]:
     """
@@ -39,8 +39,10 @@ def cords_estimator_from_rssi(
     Returns:
     tuple: estimated (x, y) coordinates
     """
-    beacons = [(x, y) for x, y, rssi_val in beacons_with_rssi]
-    distances = [rssi_to_distance(rssi_val, rssi0, n) for x, y, rssi_val in beacons_with_rssi]
+    rssi = [rssi_val for x, y, rssi_val in beacons_with_rssi]
+    mean_rssi = np.mean(rssi, axis=0)
+    beacons = [(x, y) for x, y, rssi_val in beacons_with_rssi if rssi_val <= mean_rssi]
+    distances = [rssi_to_distance(rssi_val, rssi0, n) for x, y, rssi_val in beacons_with_rssi if rssi_val <= mean_rssi]
 
     initial_guess = np.mean(beacons, axis=0)
 
@@ -56,3 +58,4 @@ def cords_estimator_from_rssi(
     else:
         raise RuntimeError(f"Optimization failed: {result.message}")
 
+print(cords_estimator_from_rssi([(0.0, 0.0, 81),(3.0, 9.0, 80), (19.0, 2.0, 65), (34.0, -3.0, 74), (47.0, 8.0, 42), (60.0, 8.0, 60), (60.0, -8.0, 76), (71.0, 8.0, 63)], n=2.0))
