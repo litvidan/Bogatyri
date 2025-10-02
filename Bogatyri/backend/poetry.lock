@@ -166,6 +166,17 @@ files = [
 all = ["flake8 (>=7.1.1)", "mypy (>=1.11.2)", "pytest (>=8.3.2)", "ruff (>=0.6.2)"]
 
 [[package]]
+name = "mqtt"
+version = "0.0.1"
+description = "frp NAT."
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "mqtt-0.0.1.tar.gz", hash = "sha256:c670eefc1f9717f5e8c575a7b6f3594a5b6faea34dc6c2badbd9fd99dfbf2ff4"},
+]
+
+[[package]]
 name = "numpy"
 version = "2.3.3"
 description = "Fundamental package for array computing in Python"
@@ -248,6 +259,21 @@ files = [
     {file = "numpy-2.3.3-pp311-pypy311_pp73-win_amd64.whl", hash = "sha256:2e267c7da5bf7309670523896df97f93f6e469fb931161f483cd6882b3b1a5dc"},
     {file = "numpy-2.3.3.tar.gz", hash = "sha256:ddc7c39727ba62b80dfdbedf400d1c10ddfa8eefbd7ec8dcb118be8b56d31029"},
 ]
+
+[[package]]
+name = "paho-mqtt"
+version = "2.1.0"
+description = "MQTT version 5.0/3.1.1 client class"
+optional = false
+python-versions = ">=3.7"
+groups = ["main"]
+files = [
+    {file = "paho_mqtt-2.1.0-py3-none-any.whl", hash = "sha256:6db9ba9b34ed5bc6b6e3812718c7e06e2fd7444540df2455d2c51bd58808feee"},
+    {file = "paho_mqtt-2.1.0.tar.gz", hash = "sha256:12d6e7511d4137555a3f6ea167ae846af2c7357b10bc6fa4f7c3968fc1723834"},
+]
+
+[package.extras]
+proxy = ["pysocks"]
 
 [[package]]
 name = "pydantic"
@@ -898,4 +924,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12"
-content-hash = "d359dcbe4cf8716971628fb43675af9ccf9f40a74b69dd6f54aa725739e7f3f8"
+content-hash = "5b86e675ebb5f6a3cd6a71d80b5c7a0654d9d215b9bf2a685947b65d125f8402"
