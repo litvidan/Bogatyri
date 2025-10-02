@@ -36,52 +36,7 @@ mqtt_subscriber = MqttSensorSubscriber(
 )
 
 
-# ---- WebSocket ----
-
-class WandererSimulator:
-    def __init__(self):
-        self.coords = {}
-        self.generate_coords()
-
-    def generate_coords(self):
-        self.coords = {"x": round(random.uniform(1, 9), 2), "y": round(random.uniform(1, 6), 2)}
-
-    def update_coords(self):
-        self.coords["x"] = round(max(0.5, min(9.5, self.coords["x"] + random.uniform(-3.3, 3.3))), 2)
-        self.coords["y"] = round(max(0.5, min(6.5, self.coords["y"] + random.uniform(-3.3, 3.3))), 2)
-        return self.coords
-
-
-class WandererMQTTSubscriber:
-    def __init__(self):
-        self.broker = "localhost"
-        self.port = 1883
-        self.topic = "data/devices"
-        self.client = mqtt.Client()
-        self.client.on_message=self.on_message
-        self.client.connect(self.broker, self.port, 60)
-
-        self.devices_data = {}
-
-    def on_message(self, client, userdata, msg):
-
-        msg = Message(**msg.payload().decode())
-        self.devices_data = msg.data
-
-
-    def on_connect(client, userdata, flags, rc):
-        print("Подключено к брокеру, код возврата:", rc)
-        # client.subscribe(self.topic)
-
-    def update_coords(self):
-        self.coords["x"] = round(max(0.5, min(9.5, self.coords["x"] + random.uniform(-3.3, 3.3))), 2)
-        self.coords["y"] = round(max(0.5, min(6.5, self.coords["y"] + random.uniform(-3.3, 3.3))), 2)
-        return self.coords
-     
-
-
-wanderer_simulator = WandererSimulator()
-
+# ---- WebSocket ----     
 
 @app.websocket("/ws/wanderer")
 async def websocket_wanderer(websocket: WebSocket):

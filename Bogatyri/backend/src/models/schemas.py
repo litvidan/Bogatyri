@@ -18,3 +18,8 @@ class PositionResponse(BaseModel):
     x: float
     y: float
     accuracy: float
+
+class Sensor(BaseModel):
+    name: str
+    rssi: int
+    is_running: bool = True
