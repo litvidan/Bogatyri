@@ -3,15 +3,8 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio
 import json
-
-from RSSISubscriber import MqttSensorSubscriber
-from domain.sensor import Sensor
-from domain.freq import FrequencyRequest
-
-import random
-import paho.mqtt.client as mqtt
-
-from src.models.schemas import FrequencyRequest, BeaconRequest, Message
+from src.RSSISubscriber import MqttSensorSubscriber
+from src.models.schemas import FrequencyRequest, BeaconRequest
 from src.services.monitor_state import MonitorState
 from src.services.websocket_connection_manager import ConnectionManager
 
