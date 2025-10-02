@@ -1,13 +1,13 @@
 import uvicorn
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 import asyncio
 import json
 import random
 import paho.mqtt.client as mqtt
 
 from src.models.schemas import FrequencyRequest, BeaconRequest, Message
+from src.services.monitor_state import MonitorState
 
 app = FastAPI(title="Wanderer API")
 
@@ -42,7 +42,7 @@ class ConnectionManager:
             except:
                 self.disconnect(connection)
 
-
+monitor = MonitorState()
 manager = ConnectionManager()
 
 
@@ -113,7 +113,7 @@ async def websocket_wanderer(websocket: WebSocket):
 @app.post("/start")
 async def start_route(request: FrequencyRequest):
     try:
-        #await start_route(request.freq)
+        monitor.start_monitoring(request.freq)
         print(f"Starting success!")
         return {"status": "success", "is_start": True}
     except Exception as exception:
@@ -123,7 +123,7 @@ async def start_route(request: FrequencyRequest):
 @app.post("/beacons")
 async def add_beacons(request: BeaconRequest):
     try:
-        #await add_beacons(request.beacons)
+        monitor.add_beacons(request.beacons)
         print(f"Starting success!")
         return {"status": "success"}
     except Exception as exception:
@@ -133,7 +133,7 @@ async def add_beacons(request: BeaconRequest):
 @app.post("/stop")
 async def stop_route():
     try:
-        #await stop_route()
+        monitor.stop_monitoring()
         print(f"Stopping success!")
         return {"status": "success", "is_stop": True}
     except Exception as exception:

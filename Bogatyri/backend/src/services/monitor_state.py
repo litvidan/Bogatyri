@@ -1,5 +1,7 @@
 import threading
 from mqtt_publisher import mqtt_publish_lines
+from src.models.schemas import BeaconConfig
+
 
 class MonitorState:
     def __init__(self, update_time_seconds: float = 1):
@@ -12,8 +14,8 @@ class MonitorState:
     def set_update_time(self, update_time_seconds: float):
         self.update_time_seconds = update_time_seconds
 
-    def add_beacon(self, name: str, x: float, y: float):
-        self.beacons[name] = (x, y)
+    def add_beacons(self, beacons_list: list[BeaconConfig]):
+        self.beacons = {beacon.name: (beacon.x, beacon.y) for beacon in beacons_list}
 
     def get_beacons(self):
         return self.beacons

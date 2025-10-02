@@ -13,31 +13,31 @@ def mqtt_publish_lines(update_time_seconds=1):
     client.connect(broker, port, 60)
     client.loop_start()
 
-	def process_line(line):
-	    line = line.strip()
-	    if not line:
-	        return
+    def process_line(line):
+        line = line.strip()
+        if not line:
+            return
 
-	    parts = line.split(maxsplit=1)
-	    if len(parts) < 2:
-	        print("Неверный формат строки:", line)
-	        return
+        parts = line.split(maxsplit=1)
+        if len(parts) < 2:
+            print("Неверный формат строки:", line)
+            return
 
-	    name, number_str = parts[0], parts[1]
+        name, number_str = parts[0], parts[1]
 
-	    try:
-	        number = int(number_str)
-	    except ValueError:
-	        print("Не удалось преобразовать число:", number_str)
-	        return
+        try:
+            number = int(number_str)
+        except ValueError:
+            print("Не удалось преобразовать число:", number_str)
+            return
 
-	    payload = json.dumps({
-	        "name": name,
-	        "rssi": number
-	    })
+        payload = json.dumps({
+            "name": name,
+            "rssi": number
+        })
 
-	    print(payload)
-	    client.publish(topic, payload)
+        print(payload)
+        client.publish(topic, payload)
 
     run_mpremote(update_time_seconds, line_callback=process_line)
 
