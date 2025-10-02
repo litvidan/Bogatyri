@@ -20,6 +20,8 @@ class BLEDeviceTracker:
 
         self.scanning = False
 
+        # Добавить инициализацию mqtt-подключения
+
     def decode_name(self, adv_data):
         i = 0
         name = None
@@ -75,6 +77,12 @@ class BLEDeviceTracker:
             if(dev['name'] != 'Unknown'):
             	print(f"Name: {dev['name']}, MAC: {mac}, RSSI: {dev['rssi']}, last seen {age:.1f} sec ago")
         print("-----")
+
+    def publish_devices(self):
+        '''
+        То же самое, что print_devices, но данные шлются в топик mosquitto mqtt
+        '''
+        pass
 
     def run(self):
         while True:
