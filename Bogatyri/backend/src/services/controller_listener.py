@@ -8,7 +8,7 @@ def write_params_file(path: Path, update_time_seconds):
 
     subprocess.run(['mpremote', 'cp', str(path), ':params.txt'])
 
-def run_mpremote(update_time_seconds: float = 1.0):
+def run_mpremote(update_time_seconds: float = 1.0, line_callback=None):
     current_dir = Path(__file__).parent
     params_file = current_dir / 'params.txt'
     write_params_file(params_file, update_time_seconds)
@@ -30,11 +30,13 @@ def run_mpremote(update_time_seconds: float = 1.0):
 
     try:
         for line in proc.stdout:
-            print(line, end='')
+            if line_callback:
+                    line_callback(line)
+            else:
+                print(line, end='')
     except KeyboardInterrupt:
         proc.terminate()
         proc.wait()
 
-
-if __name__ == "__main__":
-    run_mpremote(0.1)
+if __name__ == '__main__':
+    run_mpremote(1)
