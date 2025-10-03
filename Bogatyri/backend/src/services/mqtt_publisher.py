@@ -4,7 +4,7 @@ import threading
 
 from src.services.controller_listener import run_mpremote
 
-broker = "localhost"
+broker = "mqtt"
 port = 1883
 topic = "beacons"
 

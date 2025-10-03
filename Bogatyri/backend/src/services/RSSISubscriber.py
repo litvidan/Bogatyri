@@ -6,7 +6,7 @@ from src.domain.sensor import Sensor
 
 
 class MqttSensorSubscriber:
-    def __init__(self, broker="localhost", port=1883, topic="sensors/data"):
+    def __init__(self, broker="mqtt", port=1883, topic="sensors/data"):
         self.broker = broker
         self.port = port
         self.topic = topic

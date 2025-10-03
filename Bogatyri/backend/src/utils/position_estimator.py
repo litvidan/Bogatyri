@@ -1,3 +1,5 @@
+from typing import Any, Tuple
+
 import numpy as np
 from scipy.optimize import minimize
 
@@ -27,7 +29,7 @@ def cords_estimator_from_rssi(
         beacons_with_rssi: list[tuple[float, float, int]],
         rssi0: int = 40,
         n: float = 2.0
-) -> dict[float, float]:
+) -> tuple[float, float]:
     """
     Оценивает координаты на основе RSSI маяков
 
@@ -39,6 +41,8 @@ def cords_estimator_from_rssi(
     Returns:
     tuple: estimated (x, y) coordinates
     """
+    if not len(beacons_with_rssi):
+        raise RuntimeError(f"Empty data")
     rssi = [rssi_val for x, y, rssi_val in beacons_with_rssi]
     mean_rssi = np.mean(rssi, axis=0)
     beacons = [(x, y) for x, y, rssi_val in beacons_with_rssi if rssi_val <= mean_rssi]
@@ -54,8 +58,8 @@ def cords_estimator_from_rssi(
     )
 
     if result.success:
-        return result.x
+        x_coord = float(result.x[0])
+        y_coord = float(result.x[1])
+        return x_coord, y_coord
     else:
         raise RuntimeError(f"Optimization failed: {result.message}")
-
-print(cords_estimator_from_rssi([(0.0, 0.0, 81),(3.0, 9.0, 80), (19.0, 2.0, 65), (34.0, -3.0, 74), (47.0, 8.0, 42), (60.0, 8.0, 60), (60.0, -8.0, 76), (71.0, 8.0, 63)], n=2.0))
