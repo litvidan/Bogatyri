@@ -1,15 +1,17 @@
 import threading
 from src.models.schemas import BeaconConfig
+from src.services.RSSISubscriber import MqttSensorSubscriber
 from src.services.mqtt_publisher import mqtt_publish_lines
 
 
 class MonitorState:
-    def __init__(self, update_time_seconds: float = 1):
+    def __init__(self, mqtt_subscriber: MqttSensorSubscriber, update_time_seconds: float = 1):
         self.update_time_seconds = update_time_seconds
         self.beacons = {}
         self.is_running = False
         self._thread = None
         self._stop_event = threading.Event()
+        self.mqtt_subscriber = mqtt_subscriber
 
     def set_update_time(self, update_time_seconds: float):
         self.update_time_seconds = update_time_seconds
@@ -21,7 +23,7 @@ class MonitorState:
         return self.beacons
 
     def _monitoring_loop(self):
-        mqtt_publish_lines(self.update_time_seconds, stop_event=self._stop_event)
+        mqtt_publish_lines(self.mqtt_subscriber, self.update_time_seconds, stop_event=self._stop_event)
 
     def start_monitoring(self, update_time_seconds: float = 1):
         if self.is_running:

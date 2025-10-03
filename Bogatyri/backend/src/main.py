@@ -19,7 +19,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-monitor = MonitorState()
+
 manager = ConnectionManager()
 
 # Создаём подписчика MQTT
@@ -28,7 +28,7 @@ mqtt_subscriber = MqttSensorSubscriber(
     port=1883,
     topic="sensors/data"
 )
-
+monitor = MonitorState(mqtt_subscriber)
 
 # ---- WebSocket ----     
 
