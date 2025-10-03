@@ -34,6 +34,7 @@ class MqttSensorSubscriber:
             payload = msg.payload.decode("utf-8")
             data = json.loads(payload)
             sensor = Sensor(**data)
+            sensor.name = sensor.name.strip('"\'')
             self.sensors[sensor.name] = sensor
             print(f"[DATA] Received {sensor}")
         except Exception as e:

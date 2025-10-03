@@ -40,7 +40,8 @@ async def websocket_wanderer(websocket: WebSocket):
 
         while True:
             sensors_data = mqtt_subscriber.get_sensors()
-            print(sensors_data)
+            if not len(sensors_data):
+                continue
             beacons = monitor.get_beacons()
             try:
                 x, y = cords_estimator_from_rssi([(beacons[s.name.strip('"\'')].x, beacons[s.name].y, s.rssi) for s in sensors_data])
