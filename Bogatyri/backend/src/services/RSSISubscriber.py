@@ -31,7 +31,6 @@ class MqttSensorSubscriber:
 
     def on_message(self, client, userdata, msg):
         try:
-            print("!!!!!!!!!!!!!!!!!")
             payload = msg.payload.decode("utf-8")
             data = json.loads(payload)
             sensor = Sensor(**data)
