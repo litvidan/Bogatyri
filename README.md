@@ -8,6 +8,8 @@
 1. Подготовка среды
 Убедитесь, что у вас установлены:
 - usbipd (`winget install --id=dorssel.usbipd-win -e`) и добавьте usbipd в PATH, для этого напишите эту команду в PowerShell `export PATH=$PATH:"/c/ProgramFiles/usbipd-win`
+- uvicorn. `pip install uvicorn`
+- fastapi. `pip install fastapi`
 
 3. Сервис контроллера (Hardware + Firmware)
 Подключите контроллер (показанный на схеме ESP32 или аналог).\
