@@ -4,6 +4,7 @@
     export let width = 800;
     export let height = 350;
     export let scale = 5;
+    
 
     let canvas;
 

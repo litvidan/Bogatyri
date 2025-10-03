@@ -20,6 +20,10 @@ services:
     container_name: wanderer-backend
     ports:
       - "8000:8000"
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
+    volumes:
+      - /dev:/dev 
     environment:
       - MQTT_BROKER=mqtt
       - MQTT_PORT=1883
