@@ -33,6 +33,7 @@ class MqttSensorSubscriber:
         try:
             payload = msg.payload.decode("utf-8")
             data = json.loads(payload)
+            print(data)
             sensor = Sensor(**data)
             self.sensors[sensor.name] = sensor
             print(f"[DATA] Received {sensor}")
@@ -46,5 +47,9 @@ class MqttSensorSubscriber:
 
     def publish(self, topic: str, message: dict):
         """Отправка сообщения в топик"""
-        payload = json.dumps(message)
+        if isinstance(message, str):
+            payload = message
+        else:
+            payload = json.dumps(message, ensure_ascii=False)
+
         self.client.publish(topic, payload)

@@ -5,14 +5,9 @@ import threading
 from src.services.RSSISubscriber import MqttSensorSubscriber
 from src.services.controller_listener import run_mpremote
 
-broker = "mqtt"
-port = 1883
-topic = "beacons"
+topic = "sensors/data"
 
 def mqtt_publish_lines(mqtt_subscriber: MqttSensorSubscriber, update_time_seconds=1, stop_event: threading.Event = None):
-    client = mqtt.Client()
-    client.connect(broker, port, 60)
-    client.loop_start()
 
     def process_line(line):
         line = line.strip()
@@ -46,6 +41,3 @@ def mqtt_publish_lines(mqtt_subscriber: MqttSensorSubscriber, update_time_second
         run_mpremote(update_time_seconds, line_callback=process_line)
     except KeyboardInterrupt:
         print("Monitoring stopped by stop_event")
-
-    client.loop_stop()
-    client.disconnect()
