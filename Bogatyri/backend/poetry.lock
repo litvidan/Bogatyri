@@ -166,6 +166,22 @@ files = [
 all = ["flake8 (>=7.1.1)", "mypy (>=1.11.2)", "pytest (>=8.3.2)", "ruff (>=0.6.2)"]
 
 [[package]]
+name = "mpremote"
+version = "1.26.1"
+description = "Tool for interacting remotely with MicroPython devices"
+optional = false
+python-versions = ">=3.4"
+groups = ["main"]
+files = [
+    {file = "mpremote-1.26.1-py3-none-any.whl", hash = "sha256:39251644305be718c52bc5965315adc4ae824901750abf6a3fb63683234df05c"},
+    {file = "mpremote-1.26.1.tar.gz", hash = "sha256:61a39bf5af502e1ec56d1b28bf067766c3a0daea9d7487934cb472e378a12fe1"},
+]
+
+[package.dependencies]
+platformdirs = ">=4.3.7"
+pyserial = ">=3.3"
+
+[[package]]
 name = "mqtt"
 version = "0.0.1"
 description = "frp NAT."
@@ -274,6 +290,23 @@ files = [
 
 [package.extras]
 proxy = ["pysocks"]
+
+[[package]]
+name = "platformdirs"
+version = "4.4.0"
+description = "A small Python package for determining appropriate platform-specific dirs, e.g. a `user data dir`."
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "platformdirs-4.4.0-py3-none-any.whl", hash = "sha256:abd01743f24e5287cd7a5db3752faf1a2d65353f38ec26d98e25a6db65958c85"},
+    {file = "platformdirs-4.4.0.tar.gz", hash = "sha256:ca753cf4d81dc309bc67b0ea38fd15dc97bc30ce419a7f58d13eb3bf14c4febf"},
+]
+
+[package.extras]
+docs = ["furo (>=2024.8.6)", "proselint (>=0.14)", "sphinx (>=8.1.3)", "sphinx-autodoc-typehints (>=3)"]
+test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=8.3.4)", "pytest-cov (>=6)", "pytest-mock (>=3.14)"]
+type = ["mypy (>=1.14.1)"]
 
 [[package]]
 name = "pydantic"
@@ -408,6 +441,21 @@ files = [
 
 [package.dependencies]
 typing-extensions = ">=4.6.0,<4.7.0 || >4.7.0"
+
+[[package]]
+name = "pyserial"
+version = "3.5"
+description = "Python Serial Port Extension"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "pyserial-3.5-py2.py3-none-any.whl", hash = "sha256:c4451db6ba391ca6ca299fb3ec7bae67a5c55dde170964c7a14ceefec02f2cf0"},
+    {file = "pyserial-3.5.tar.gz", hash = "sha256:3c77e014170dfffbd816e6ffc205e9842efb10be9f58ec16d3e8675b4925cddb"},
+]
+
+[package.extras]
+cp2110 = ["hidapi"]
 
 [[package]]
 name = "python-dotenv"
@@ -924,4 +972,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12"
-content-hash = "5b86e675ebb5f6a3cd6a71d80b5c7a0654d9d215b9bf2a685947b65d125f8402"
+content-hash = "73f4a6c14e21c0230956dd01b4eea056e7895cb2e6062a2a94f2b2b304078434"
