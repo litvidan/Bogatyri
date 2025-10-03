@@ -33,15 +33,16 @@ class MqttSensorSubscriber:
         try:
             payload = msg.payload.decode("utf-8")
             data = json.loads(payload)
-            print(data)
             sensor = Sensor(**data)
             self.sensors[sensor.name] = sensor
+            print('!', self.sensors)
             print(f"[DATA] Received {sensor}")
         except Exception as e:
             print(f"[MQTT] Error parsing message: {e}")
 
     def get_sensors(self):
         """Вернуть список сенсоров"""
+        print('#', self.sensors)
         return [s for s in self.sensors.values()]
 
 
